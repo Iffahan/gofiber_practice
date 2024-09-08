@@ -1,61 +1,38 @@
+// main.go
 package main
 
 import (
- "fmt"
- "github.com/gofiber/fiber/v2"
+	"fmt"
+	"log"
+
+	"github.com/Iffahan/gofiber_practice/models"
+	"github.com/Iffahan/gofiber_practice/routers"
+
+	"github.com/gofiber/fiber/v2"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func main() {
- fmt.Println("hello world")
+	// Database connection string
+	dsn := "host=localhost user=admin password=admin1234 dbname=gofiber port=5432 sslmode=disable"
 
- // fiber instance
- app := fiber.New()
+	// Connect to PostgreSQL
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Failed to connect to the database:", err)
+	}
 
- // routes
+	// Auto migrate the User model (create table if it doesn't exist)
+	db.AutoMigrate(&models.User{})
 
- app.Get("/", func(c *fiber.Ctx) error { // STRING
-  return c.SendString("hello world 🌈")
- })
+	// Create a new Fiber instance
+	app := fiber.New()
 
- app.Get("/info", func(c *fiber.Ctx) error { // JSON
-  return c.JSON(fiber.Map{
-   "msg":     "hello world 🚀",
-   "go":      "fiber 🥦",
-   "boolean": true,
-   "number":  1234,
-  })
- })
+	// Setup routes for users
+	routers.SetupUserRoutes(app, db)
 
- // app listening at PORT: 3000
- app.Listen(":3000")
-}package main
-
-import (
- "fmt"
- "github.com/gofiber/fiber/v2"
-)
-
-func main() {
- fmt.Println("hello world")
-
- // fiber instance
- app := fiber.New()
-
- // routes
-
- app.Get("/", func(c *fiber.Ctx) error { // STRING
-  return c.SendString("hello world")
- })
-
- app.Get("/info", func(c *fiber.Ctx) error { // JSON
-  return c.JSON(fiber.Map{
-   "msg":     "hello world 🚀",
-   "go":      "fiber 🥦",
-   "boolean": true,
-   "number":  1234,
-  })
- })
-
- // app listening at PORT: 3000
- app.Listen(":3000")
+	// Start the app on PORT 3000
+	fmt.Println("App is running on http://localhost:3000")
+	app.Listen(":3000")
 }
