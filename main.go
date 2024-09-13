@@ -1,4 +1,3 @@
-// main.go
 package main
 
 import (
@@ -9,11 +8,19 @@ import (
 	"github.com/Iffahan/gofiber_practice/models"
 	"github.com/Iffahan/gofiber_practice/routers"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"github.com/joho/godotenv"
+
+	_ "github.com/Iffahan/gofiber_practice/docs" // Import generated docs
 )
 
+//	@title			Go Fiber Practice API
+//	@version		1.0
+//	@description	API documentation for Go Fiber practice project.
+//	@host			localhost:3000
+//	@BasePath		/
 func main() {
 	// Load environment variables from .env file
 	err := godotenv.Load()
@@ -38,14 +45,18 @@ func main() {
 		log.Fatal("Failed to connect to the database:", err)
 	}
 
-	// Auto migrate the User model (create table if it doesn't exist)
+	// Auto-migrate the User model (create table if it doesn't exist)
 	db.AutoMigrate(&models.User{})
 
 	// Create a new Fiber instance
 	app := fiber.New()
 
-	// Setup routes for users
-	routers.SetupUserRoutes(app, db)
+	// Setup Swagger docs route
+	app.Get("/swagger/*", swagger.HandlerDefault) // Serve Swagger UI
+
+	// Register routes
+	routers.CreateUser(app, db)
+	routers.GetUsers(app, db)
 
 	// Start the app on PORT 3000
 	fmt.Println("App is running on http://localhost:3000")
