@@ -8,19 +8,12 @@ import (
 	"github.com/Iffahan/gofiber_practice/models"
 	"github.com/Iffahan/gofiber_practice/routers"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/swagger"
+	"github.com/gofiber/fiber/v2/middleware/cors" // Import the CORS middleware
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-
-	_ "github.com/Iffahan/gofiber_practice/docs" // Import generated docs
 )
 
-//	@title			Go Fiber Practice API
-//	@version		1.0
-//	@description	API documentation for Go Fiber practice project.
-//	@host			localhost:3000
-//	@BasePath		/
 func main() {
 	// Load environment variables from .env file
 	err := godotenv.Load()
@@ -51,14 +44,20 @@ func main() {
 	// Create a new Fiber instance
 	app := fiber.New()
 
-	// Setup Swagger docs route
-	app.Get("/swagger/*", swagger.HandlerDefault) // Serve Swagger UI
+	// Enable CORS middleware with configuration
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000",                    // Allow your Nuxt.js frontend (usually runs on localhost:3000)
+		AllowMethods: "GET,POST,PUT,DELETE",                      // Allow methods
+		AllowHeaders: "Origin,Content-Type,Accept,Authorization", // Allow necessary headers
+	}))
 
 	// Register routes
-	routers.CreateUser(app, db)
 	routers.GetUsers(app, db)
+	routers.RegisterUser(app, db) // Register the new routes
+	routers.LoginUser(app, db)    // Register the login route
+	routers.MyProfile(app, db)
 
-	// Start the app on PORT 3000
-	fmt.Println("App is running on http://localhost:3000")
-	app.Listen(":3000")
+	// Start the app on PORT 4000
+	fmt.Println("App is running on http://localhost:4000")
+	app.Listen(":4000")
 }

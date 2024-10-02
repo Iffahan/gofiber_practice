@@ -1,13 +1,13 @@
 package models
 
-// User represents a user in the system
-// swagger:model User
+import (
+	"time"
+)
+
 type User struct {
-	ID        uint   `json:"id"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-	DeletedAt string `json:"deleted_at"`
-	Name      string `json:"name"`
-	Email     string `json:"email"`
-	Age       int    `json:"age"`
+	ID        uint      `gorm:"primaryKey"`
+	Email     string    `gorm:"unique;not null"`
+	Password  string    `gorm:"not null"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
